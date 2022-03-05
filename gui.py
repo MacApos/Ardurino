@@ -39,11 +39,14 @@ def slide2(*args):
 
 
 def run():
+    global saved_pos
     saved_pos = [int(pos.get()) for pos in [pos0, pos1, pos2]]
     print(saved_pos)
 
 
 def record():
+    global saved_pos
+    print(saved_pos, type(saved_pos))
     setup = []
     for pos in positions:
         setup.append(int(pos.get()))
@@ -52,35 +55,35 @@ def record():
 
 
 def play():
+    global saved_pos
     print(f'List of saved position = {saved_pos}')
 
 
 def restart():
-    for idx, pos in enumerate(positions):
+    for pos in positions:
         pos.delete(0, END)
-        sliders[idx].set(0)
         pos.insert(0, '0')
 
 
 def clear():
-    global saved_pos
     saved_pos = []
     print(saved_pos)
 
 
 def random_setup():
     saved_pos = []
-    for idx, pos in enumerate(positions):
+    for pos in positions:
         random_setup = random.randint(0, 180)
         pos.delete(0, END)
         pos.insert(0, str(random_setup))
-        sliders[idx].set(random_setup)
         saved_pos.append(pos.get())
+    print(saved_pos)
 
 
 def open_file():
-    filename = filedialog.askopenfilename()
-    file = open(filename, "r")
+    global saved_pos
+    filepath = filedialog.askopenfilename()
+    file = open(filepath, "r")
     data = file.read()
     saved_pos = eval(data)
     file.close()
@@ -91,6 +94,7 @@ def save_file():
     file = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
     file.write(str(saved_pos))
     file.close()
+
 
 saved_pos = []
 
@@ -108,8 +112,6 @@ callback = [callback0, callback1, callback2]
 
 for idx, slider_var in enumerate(sliders_var):
     slider_var.trace_add('write', callback[idx])
-
-
 
 servo0 = Label(root, text='Servo1')
 servo0.grid(row=0, column=0, sticky='ew')
@@ -169,3 +171,5 @@ filemenu.add_command(label="Save File", command=save_file)
 root.config(menu=menubar)
 
 root.mainloop()
+
+print(saved_pos)
