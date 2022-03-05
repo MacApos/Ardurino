@@ -1,63 +1,65 @@
-from tkinter import *
 import random
+from tkinter import *
+from tkinter import filedialog
 
 root = Tk()
-root.minsize(350, 200)
+root.minsize(310, 245)
+
+def callback0(*args):
+    slide = slider0_var.get()
+    if slide:
+        slider0.set(int(slide))
 
 
-def update(pos, slider):
-    if int(pos.get()) > 180:
-        pos.delete(0, END)
-        pos.insert(0, '180')
-    pos = int(pos.get())
-    slider.set(pos)
-
-
-def update_all():
-    slider0.set(int(pos0.get()))
-    slider1.set(int(pos1.get()))
-    slider2.set(int(pos2.get()))
-
-
-def restart():
+def slide0(*args):
     pos0.delete(0, END)
-    slider0.set(0)
-    pos0.insert(0, '0')
+    pos0.insert(0, str(slider0.get()))
 
+
+def callback1(*args):
+    slide = slider1_var.get()
+    if slide:
+        slider1.set(int(slide))
+
+
+def slide1(*args):
     pos1.delete(0, END)
-    slider1.set(0)
-    pos1.insert(0, '0')
+    pos1.insert(0, str(slider1.get()))
 
+
+def callback2(*args):
+    slide = slider2_var.get()
+    if slide:
+        slider2.set(int(slide))
+
+
+def slide2(*args):
     pos2.delete(0, END)
-    slider2.set(0)
-    pos2.insert(0, '0')
+    pos2.insert(0, str(slider2.get()))
 
 
-def random_setup():
-    pos0.delete(0, END)
-    random0 = random.randint(0, 180)
-    pos0.insert(0, str(random0))
-    slider0.set(random0)
-
-    pos1.delete(0, END)
-    random1 = random.randint(0, 180)
-    pos1.insert(0, str(random1))
-    slider1.set(random1)
-
-    pos2.delete(0, END)
-    random2 = random.randint(0, 180)
-    pos2.insert(0, str(random2))
-    slider2.set(random2)
+def run():
+    saved_pos = [int(pos.get()) for pos in [pos0, pos1, pos2]]
+    print(saved_pos)
 
 
-
-
-def save():
+def record():
     setup = []
-    for pos in pos0, pos1, pos2:
+    for pos in positions:
         setup.append(int(pos.get()))
     saved_pos.append(setup)
     print(saved_pos)
+
+
+def play():
+    print(f'List of saved position = {saved_pos}')
+
+
+def restart():
+    for idx, pos in enumerate(positions):
+        pos.delete(0, END)
+        sliders[idx].set(0)
+        pos.insert(0, '0')
 
 
 def clear():
@@ -66,54 +68,104 @@ def clear():
     print(saved_pos)
 
 
+def random_setup():
+    saved_pos = []
+    for idx, pos in enumerate(positions):
+        random_setup = random.randint(0, 180)
+        pos.delete(0, END)
+        pos.insert(0, str(random_setup))
+        sliders[idx].set(random_setup)
+        saved_pos.append(pos.get())
+
+
+def open_file():
+    filename = filedialog.askopenfilename()
+    file = open(filename, "r")
+    data = file.read()
+    saved_pos = eval(data)
+    file.close()
+    print(saved_pos)
+
+
+def save_file():
+    file = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
+    file.write(str(saved_pos))
+    file.close()
+
 saved_pos = []
 
-pos0 = Entry(root)
-pos0.insert(0, "0")
-update1 = Button(root, text='UPDATE', command=lambda: update(pos0, slider0))
-pos0.grid(row=1, column=1, sticky='s')
-update1.grid(row=1, column=2, sticky='s')
+button_wide = 13
+entry_width = 15
+label_width = 100
+slider_width = 100
 
-pos1 = Entry(root)
-pos1.insert(0, "0")
-update2 = Button(root, text='UPDATE', command=lambda: update(pos1, slider1))
-pos1.grid(row=3, column=1, sticky='s', pady=3)
-update2.grid(row=3, column=2, sticky='s')
+slider0_var = StringVar(value='0')
+slider1_var = StringVar(value='0')
+slider2_var = StringVar(value='0')
 
-pos2 = Entry(root)
-pos2.insert(0, "0")
-update3 = Button(root, text='UPDATE', command=lambda: update(pos2, slider2))
-pos2.grid(row=5, column=1, sticky='s', pady=3)
-update3.grid(row=5, column=2, sticky='s')
+sliders_var = [slider0_var, slider1_var, slider2_var]
+callback = [callback0, callback1, callback2]
 
-update_all = Button(root, text='UPDATE\nALL', command=update_all, width=7, height=5)
-update_all.grid(row=1, column=3, rowspan=4, pady=19, sticky='n')
+for idx, slider_var in enumerate(sliders_var):
+    slider_var.trace_add('write', callback[idx])
 
-restart = Button(root, text='RESTART', command=restart, width=7)
-restart.grid(row=5, column=3, sticky='s')
 
-random_setup = Button(root, text='RANDOM', command=random_setup, width=7)
-random_setup.grid(row=4, column=3, sticky='ew')
 
 servo0 = Label(root, text='Servo1')
-slider0 = Scale(root, from_=0, to=180, orient=HORIZONTAL)
 servo0.grid(row=0, column=0, sticky='ew')
-slider0.grid(row=1, column=0)
 
 servo1 = Label(root, text='Servo2')
-slider1 = Scale(root, from_=0, to=180, orient=HORIZONTAL)
 servo1.grid(row=2, column=0, sticky='ew')
-slider1.grid(row=3, column=0)
 
 servo2 = Label(root, text='Servo3')
-slider2 = Scale(root, from_=0, to=180, orient=HORIZONTAL)
 servo2.grid(row=4, column=0, sticky='ew')
+
+pos0 = Entry(root, textvariable=slider0_var, width=entry_width)
+pos0.grid(row=1, column=1, sticky='s')
+
+pos1 = Entry(root, textvariable=slider1_var, width=entry_width)
+pos1.grid(row=3, column=1, sticky='s', pady=3)
+
+pos2 = Entry(root, textvariable=slider2_var, width=entry_width)
+pos2.grid(row=5, column=1, sticky='s', pady=3)
+
+slider0 = Scale(root, from_=0, to=360, orient=HORIZONTAL, length=slider_width, command=slide0)
+slider0.grid(row=1, column=0)
+
+slider1 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide1)
+slider1.grid(row=3, column=0)
+
+slider2 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide2)
 slider2.grid(row=5, column=0)
 
-save = Button(root, text='SAVE', command=save)
-save.grid(row=6, column=0)
+run = Button(root, text='RUN', command=run, width=button_wide)
+run.grid(row=6, column=0)
 
-clear = Button(root, text='CLEAR', command=clear)
-clear.grid(row=6, column=1)
+save = Button(root, text='RECORD', command=record, width=button_wide)
+save.grid(row=6, column=1)
+
+play = Button(root, text='PLAY', command=play, width=button_wide)
+play.grid(row=6, column=2)
+
+restart = Button(root, text='RESTART', command=restart, width=button_wide)
+restart.grid(row=7, column=0, sticky='s')
+
+clear = Button(root, text='CLEAR', command=clear, width=button_wide)
+clear.grid(row=7, column=1)
+
+random_setup = Button(root, text='RANDOM', command=random_setup, width=button_wide)
+random_setup.grid(row=7, column=2, sticky='ew')
+
+sliders = [slider0, slider1, slider2]
+positions = [pos0, pos1, pos2]
+
+menubar = Menu(root)
+filemenu = Menu(menubar, tearoff=0)
+menubar.add_cascade(label="File", menu=filemenu)
+filemenu.add_command(label="Open File", command=open_file)
+filemenu.add_command(label="Save File", command=save_file)
+
+
+root.config(menu=menubar)
 
 root.mainloop()
