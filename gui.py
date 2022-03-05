@@ -46,7 +46,6 @@ def run():
 
 def record():
     global saved_pos
-    print(saved_pos, type(saved_pos))
     setup = []
     for pos in positions:
         setup.append(int(pos.get()))
