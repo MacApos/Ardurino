@@ -1,3 +1,4 @@
+import time
 import random
 from tkinter import *
 from tkinter import filedialog
@@ -169,6 +170,9 @@ filemenu.add_command(label="Save File", command=save_file)
 
 root.config(menu=menubar)
 
-root.mainloop()
+# root.mainloop()
 
-print(saved_pos)
+while True:
+    root.update()
+    # time.sleep(0.5)
+    # print(saved_pos)
