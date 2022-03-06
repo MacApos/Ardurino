@@ -1,12 +1,10 @@
-import pyfirmata
-import time
+from pyfirmata import Arduino
+from time import sleep
 
-if __name__ == '__main__':
-    board = pyfirmata.Arduino
-
-    while True:
-        board.digital(13).write(1)
-        time.sleep(1)
-        board.digital(13).write(0)
-        time.sleep(0)
-
+board = Arduino('COM3')  # Change to your port
+print("Start blinking D13")
+while True:
+    board.digital[4].write(1)
+    sleep(1)
+    board.digital[4].write(0)
+    sleep(1)
