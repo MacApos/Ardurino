@@ -1,5 +1,6 @@
 import time
 import random
+import pyfirmata
 from tkinter import *
 from tkinter import filedialog
 
@@ -38,25 +39,33 @@ def slide2(*args):
     pos2.delete(0, END)
     pos2.insert(0, str(slider2.get()))
 
+recorded_pos = [[]]
+run_pos = []
+
 
 def run():
-    global saved_pos
-    saved_pos = [int(pos.get()) for pos in [pos0, pos1, pos2]]
-    print(saved_pos)
+    global run_pos
+    run_pos = [[int(pos.get()) for pos in positions]]
+
 
 
 def record():
-    global saved_pos
-    setup = []
-    for pos in positions:
-        setup.append(int(pos.get()))
-    saved_pos.append(setup)
-    print(saved_pos)
+    global recorded_pos
+    position0 = int(pos0.get())
+    position1 = int(pos1.get())
+    position2 = int(pos2.get())
+    setup = [position0, position1, position2]
+    # setup = [[int(pos.get()) for pos in positions]]
+    if setup != recorded_pos[-1]:
+        recorded_pos.append(setup)
 
 
 def play():
-    global saved_pos
-    print(f'List of saved position = {saved_pos}')
+    global run_pos
+    run_pos = []
+    for pos in recorded_pos:
+        run_pos.append(pos)
+
 
 
 def restart():
@@ -66,37 +75,33 @@ def restart():
 
 
 def clear():
-    saved_pos = []
-    print(saved_pos)
+    global recorded_pos
+    recorded_pos = [[]]
 
 
 def random_setup():
-    saved_pos = []
+    run_pos = []
     for pos in positions:
         random_setup = random.randint(0, 180)
         pos.delete(0, END)
         pos.insert(0, str(random_setup))
-        saved_pos.append(pos.get())
-    print(saved_pos)
+        run_pos.append(pos.get())
 
 
 def open_file():
-    global saved_pos
+    global run_pos
     filepath = filedialog.askopenfilename()
     file = open(filepath, "r")
     data = file.read()
-    saved_pos = eval(data)
+    run_pos = eval(data)
     file.close()
-    print(saved_pos)
 
 
 def save_file():
     file = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
-    file.write(str(saved_pos))
+    file.write(str(recorded_pos))
     file.close()
 
-
-saved_pos = []
 
 button_wide = 13
 entry_width = 15
@@ -131,7 +136,7 @@ pos1.grid(row=3, column=1, sticky='s', pady=3)
 pos2 = Entry(root, textvariable=slider2_var, width=entry_width)
 pos2.grid(row=5, column=1, sticky='s', pady=3)
 
-slider0 = Scale(root, from_=0, to=360, orient=HORIZONTAL, length=slider_width, command=slide0)
+slider0 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide0)
 slider0.grid(row=1, column=0)
 
 slider1 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide1)
@@ -169,10 +174,9 @@ filemenu.add_command(label="Save File", command=save_file)
 
 
 root.config(menu=menubar)
-
 # root.mainloop()
-
+i = 0
 while True:
+    print(run_pos)
+    time.sleep(0.5)
     root.update()
-    # time.sleep(0.5)
-    # print(saved_pos)

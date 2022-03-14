@@ -1,14 +1,26 @@
-# define led 13
+#include <Servo.h>
 
-void setup()
-{
-  pinMode(led, OUTPUT);
+Servo servo0;
+Servo servo1;
+Servo servo2;
+
+void setup() {
+  servo0.attach(3);
+  servo1.attach(5);
+  servo2.attach(9);
 }
 
-void loop()
-{
-  //digitalWrite(led, HIGH);
-  //delay(1000); // Wait for 1000 millisecond(s)
-  digitalWrite(led, LOW);
-  //delay(1000); // Wait for 1000 millisecond(s)
+void loop() {
+  servo0.writeMicroseconds(800);
+
+    servo0.write(180);
+    servo1.write(0);
+    servo2.write(0);
+    delay(1500);
+
+    servo0.write(0);
+    servo1.write(180);
+    servo2.write(180);
+    delay(1500);
+  
 }
