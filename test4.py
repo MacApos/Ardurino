@@ -8,3 +8,4 @@ while True:
     sleep(1)
     board.digital[4].write(0)
     sleep(1)
+

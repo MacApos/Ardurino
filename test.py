@@ -1,20 +1,21 @@
 from tkinter import *
-master = Tk()
 
-var_string = StringVar()
-
-
-def getThrottle(event):
-    var_string = str(Throttle.get())
-    entry.delete(0, END)
-    entry.insert(0, var_string)
+global magnet
+magnet=0
 
 
-entry = Entry(master)
-Throttle = Scale(master, from_=0, to=100, orient=HORIZONTAL, command=getThrottle)
-slider0 = Scale(master, from_=0, to=360, orient=HORIZONTAL, length=100)
-Throttle.set(0)
-entry.pack()
-Throttle.pack()
+def switch():
+    global magnet
+    if not magnet:
+        magnet = 1
+    else:
+        magnet = 0
 
-master.mainloop()
+root = Tk()
+
+switch = Button(root, text='switch',command=switch)
+switch.grid(row=0, column=0, sticky='ew')
+
+while True:
+    print(magnet)
+    root.update()

@@ -3,9 +3,11 @@ import random
 import pyfirmata
 from tkinter import *
 from tkinter import filedialog
+from pyfirmata import Arduino, SERVO
 
 root = Tk()
 root.minsize(310, 245)
+
 
 def callback0(*args):
     slide = slider0_var.get()
@@ -29,35 +31,31 @@ def slide1(*args):
     pos1.insert(0, str(slider1.get()))
 
 
-def callback2(*args):
-    slide = slider2_var.get()
-    if slide:
-        slider2.set(int(slide))
-
-
-def slide2(*args):
-    pos2.delete(0, END)
-    pos2.insert(0, str(slider2.get()))
-
-
 global magnet
 magnet=0
-recorded_pos = [[magnet, 0, 0, 0]]
-run_pos = []
+run_pos = [[magnet, 0, 0]]
+recorded_pos = [[magnet, 0, 0]]
 
 
 def grab():
+    global run_pos
     global magnet
     if not magnet:
+        label.config(text='Released')
         magnet = 1
     else:
+        label.config(text='Grabbed')
         magnet = 0
+    run_pos = [[magnet, 0, 0]]
 
 
 def run():
     global run_pos
+    run_pos = [[]]
     run_pos[0].append(magnet)
-    run_pos = [[int(pos.get()) for pos in positions]]
+    # run_pos[0] = [int(pos.get()) for pos in positions]
+    for pos in positions:
+        run_pos[0].append(int(pos.get()))
 
 
 
@@ -65,8 +63,7 @@ def record():
     global recorded_pos
     position0 = int(pos0.get())
     position1 = int(pos1.get())
-    position2 = int(pos2.get())
-    setup = [magnet, position0, position1, position2]
+    setup = [magnet, position0, position1]
     # setup = [[int(pos.get()) for pos in positions]]
     if setup != recorded_pos[-1]:
         recorded_pos.append(setup)
@@ -86,8 +83,14 @@ def restart():
 
 
 def clear():
+    global magnet
     global recorded_pos
-    recorded_pos = [[]]
+    magnet = 0
+    label.config(text='Released')
+    recorded_pos = [[magnet, 0, 0]]
+    for pos in positions:
+        pos.delete(0, END)
+        pos.insert(0, '0')
 
 
 def random_setup():
@@ -121,10 +124,9 @@ slider_width = 100
 
 slider0_var = StringVar(value='0')
 slider1_var = StringVar(value='0')
-slider2_var = StringVar(value='0')
 
-sliders_var = [slider0_var, slider1_var, slider2_var]
-callback = [callback0, callback1, callback2]
+sliders_var = [slider0_var, slider1_var]
+callback = [callback0, callback1]
 
 for idx, slider_var in enumerate(sliders_var):
     slider_var.trace_add('write', callback[idx])
@@ -135,26 +137,17 @@ servo0.grid(row=0, column=0, sticky='ew')
 servo1 = Label(root, text='Servo2')
 servo1.grid(row=2, column=0, sticky='ew')
 
-servo2 = Label(root, text='Servo3')
-servo2.grid(row=4, column=0, sticky='ew')
-
 pos0 = Entry(root, textvariable=slider0_var, width=entry_width)
 pos0.grid(row=1, column=1, sticky='s')
 
 pos1 = Entry(root, textvariable=slider1_var, width=entry_width)
 pos1.grid(row=3, column=1, sticky='s', pady=3)
 
-pos2 = Entry(root, textvariable=slider2_var, width=entry_width)
-pos2.grid(row=5, column=1, sticky='s', pady=3)
-
 slider0 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide0)
 slider0.grid(row=1, column=0)
 
 slider1 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide1)
 slider1.grid(row=3, column=0)
-
-slider2 = Scale(root, from_=0, to=180, orient=HORIZONTAL, length=slider_width, command=slide2)
-slider2.grid(row=5, column=0)
 
 run = Button(root, text='RUN', command=run, width=button_wide)
 run.grid(row=6, column=0)
@@ -163,10 +156,7 @@ save = Button(root, text='RECORD', command=record, width=button_wide)
 save.grid(row=6, column=1)
 
 play = Button(root, text='PLAY', command=play, width=button_wide)
-play.grid(row=6, column=2)
-
-restart = Button(root, text='RESTART', command=restart, width=button_wide)
-restart.grid(row=7, column=0, sticky='s')
+play.grid(row=7, column=0)
 
 clear = Button(root, text='CLEAR', command=clear, width=button_wide, state=ACTIVE)
 clear.grid(row=7, column=1)
@@ -177,9 +167,11 @@ random_setup.grid(row=7, column=2, sticky='ew')
 grab = Button(root, text='GRAB/RELEASE', command=grab)
 grab.grid(row=2, column=2, sticky='ew')
 
+label = Label(root, text='Grabbed', width=entry_width)
+label.grid(row=3, column=2, sticky='s')
 
-sliders = [slider0, slider1, slider2]
-positions = [pos0, pos1, pos2]
+sliders = [slider0, slider1]
+positions = [pos0, pos1]
 
 menubar = Menu(root)
 filemenu = Menu(menubar, tearoff=0)
@@ -190,8 +182,29 @@ filemenu.add_command(label="Save File", command=save_file)
 root.config(menu=menubar)
 # root.mainloop()
 
+board = Arduino('COM3')  # Change to your port
+magnet_pin = 3
+servo0_pin = 5
+servo1_pin = 9
+
+for pin in servo0_pin, servo1_pin:
+    board.digital[pin].mode = SERVO
+
 while True:
-    print(run_pos)
-    time.sleep(0.1)
+    pin3 = 3
+    pin5 = 5
+
+    for pin in pin3, pin5:
+        board.digital[pin].mode = SERVO
+
+    while True:
+        for i in range(0, 180, 20):
+            board.digital[pin3].write(i)
+            board.digital[pin5].write(i)
+            time.sleep(0.5)
+        for i in range(180, 0, -20):
+            board.digital[pin5].write(i)
+            board.digital[pin5].write(i)
+            time.sleep(0.5)
     root.update()
 
