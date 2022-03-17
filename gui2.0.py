@@ -41,12 +41,12 @@ def grab():
     global run_pos
     global magnet
     if not magnet:
-        label.config(text='Released')
+        label.config(text='Grabbed')
         magnet = 1
     else:
-        label.config(text='Grabbed')
+        label.config(text='Released')
         magnet = 0
-    run_pos = [[magnet, 0, 0]]
+    run_pos[-1][0] = magnet
 
 
 def run():
@@ -85,9 +85,11 @@ def restart():
 def clear():
     global magnet
     global recorded_pos
+    global run_pos
     magnet = 0
     label.config(text='Released')
     recorded_pos = [[magnet, 0, 0]]
+    run_pos = [[magnet, 0, 0]]
     for pos in positions:
         pos.delete(0, END)
         pos.insert(0, '0')
@@ -167,7 +169,7 @@ random_setup.grid(row=7, column=2, sticky='ew')
 grab = Button(root, text='GRAB/RELEASE', command=grab)
 grab.grid(row=2, column=2, sticky='ew')
 
-label = Label(root, text='Grabbed', width=entry_width)
+label = Label(root, text='Released', width=entry_width)
 label.grid(row=3, column=2, sticky='s')
 
 sliders = [slider0, slider1]
@@ -182,29 +184,32 @@ filemenu.add_command(label="Save File", command=save_file)
 root.config(menu=menubar)
 # root.mainloop()
 
-board = Arduino('COM3')  # Change to your port
-magnet_pin = 3
+board = Arduino('COM5')
+magnet_pin = 9
 servo0_pin = 5
-servo1_pin = 9
+servo1_pin = 3
 
 for pin in servo0_pin, servo1_pin:
     board.digital[pin].mode = SERVO
 
+sleep = 0.1
 while True:
-    pin3 = 3
-    pin5 = 5
+    for pos in run_pos:
+        print(pos[0], pos[1], pos[2])
+        board.digital[magnet_pin].write(pos[0])
+        board.digital[servo0_pin].write(pos[1])
+        board.digital[servo1_pin].write(pos[2])
+        if len(run_pos) >= 2:
+            sleep = 0.8
+        else:
+            sleep = 0.1
+        time.sleep(sleep)
 
-    for pin in pin3, pin5:
-        board.digital[pin].mode = SERVO
-
-    while True:
-        for i in range(0, 180, 20):
-            board.digital[pin3].write(i)
-            board.digital[pin5].write(i)
-            time.sleep(0.5)
-        for i in range(180, 0, -20):
-            board.digital[pin5].write(i)
-            board.digital[pin5].write(i)
-            time.sleep(0.5)
+#         board.digital[pin5].write(i)
+#         time.sleep(0.5)
+#     for i in range(180, 0, -20):
+#         board.digital[pin5].write(i)
+#         board.digital[pin5].write(i)
+#         time.sleep(0.5)
     root.update()
 

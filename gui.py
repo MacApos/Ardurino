@@ -1,6 +1,6 @@
 import time
 import random
-import pyfirmata
+# import pyfirmata
 from tkinter import *
 from tkinter import filedialog
 
