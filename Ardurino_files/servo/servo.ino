@@ -11,7 +11,7 @@ void setup()
 void loop() 
 {  
 
-  for (int i = 0; i <= 180; i=i+15) {
+  for (int i = 0; i <= 180; i=i+5) {
     servo.write(i);
     delay(500);
   }                    

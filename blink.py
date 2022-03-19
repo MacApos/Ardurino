@@ -6,7 +6,9 @@ pin = 9
 
 while True:
     board.digital[pin].write(1)
-    sleep(10)  # delays for 9 seconds
+    sleep(10)
+    print('high')
     board.digital[pin].write(0)
-    sleep(1)  # delays for 9 seconds
+    sleep(1)
+    print('low')
 

@@ -205,11 +205,5 @@ while True:
             sleep = 0.1
         time.sleep(sleep)
 
-#         board.digital[pin5].write(i)
-#         time.sleep(0.5)
-#     for i in range(180, 0, -20):
-#         board.digital[pin5].write(i)
-#         board.digital[pin5].write(i)
-#         time.sleep(0.5)
     root.update()
 
